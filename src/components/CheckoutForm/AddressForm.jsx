@@ -13,7 +13,18 @@ const AddressForm = ({ checkoutToken, test }) => {
   const [shippingSubdivision, setShippingSubdivision] = useState('');
   const [shippingOptions, setShippingOptions] = useState([]);
   const [shippingOption, setShippingOption] = useState('');
+  const [firstName,setFirstName]=useState('');
+  const [lastName,setSecondName]=useState('');
+  const [address1,setAddressName]=useState('');
+  const [email,setEmailName]=useState('');
+
+
+  const [city,setCityName]=useState('');
+  const [zip,setZipName]=useState('');
+
+  
   const methods = useForm();
+
 
   const fetchShippingCountries = async (checkoutTokenId) => {
     const { countries } = await commerce.services.localeListShippingCountries(checkoutTokenId);
@@ -47,6 +58,22 @@ const AddressForm = ({ checkoutToken, test }) => {
   useEffect(() => {
     if (shippingSubdivision) fetchShippingOptions(checkoutToken.id, shippingCountry, shippingSubdivision);
   }, [shippingSubdivision]);
+  const push = () => {
+    axios.post('http://localhost:5000/register', { firstName,lastName,address1,email,city,zip})
+    
+      .then((response) => {
+        const result = response.data;
+        if (result) {
+          alert("Data saved successfully");
+        setFirstName('')
+        }
+      })
+      .catch((error) => {
+        console.error("POST request error:", error);
+        alert("Something went wrong when saving data.");
+      });
+  }
+
 
   return (
     <>
@@ -54,12 +81,23 @@ const AddressForm = ({ checkoutToken, test }) => {
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit((data) => test({ ...data, shippingCountry, shippingSubdivision, shippingOption }))}>
           <Grid container spacing={3}>
-            <FormInput required name="firstName" label="First name" />
-            <FormInput required name="lastName" label="Last name" />
-            <FormInput required name="address1" label="Address line 1" />
-            <FormInput required name="email" label="Email" />
-            <FormInput required name="city" label="City" />
-            <FormInput required name="zip" label="Zip / Postal code" />
+          <span onChange={(e)=>setFirstName(e.target.value)}> 
+           <FormInput required name="firstName" label="First name"  /> 
+           </span>
+           <span onChange={(e)=>setSecondName(e.target.value)} >   
+           <FormInput required name="lastName" label="Last name" />
+           </span>
+           <span onChange={(e)=>setAddressName(e.target.value)}>
+           <FormInput required name="address1" label="Address " />
+           </span>
+           <span onChange={(e)=>setEmailName(e.target.value)}> 
+           <FormInput required name="email" label="Email" />
+           </span><span onChange={(e)=>setCityName(e.target.value)}> 
+           <FormInput required name="city" label="City" />
+           </span> 
+           <span onChange={(e)=>setZipName(e.target.value)}> 
+           <FormInput required name="zip" label="Zip / Postal" />
+           </span>
             <Grid item xs={12} sm={6}>
               <InputLabel>Shipping Country</InputLabel>
               <Select value={shippingCountry} fullWidth onChange={(e) => setShippingCountry(e.target.value)}>
@@ -94,7 +132,7 @@ const AddressForm = ({ checkoutToken, test }) => {
           <br />
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <Button component={Link} variant="outlined" to="/cart">Back to Cart</Button>
-            <Button type="submit" variant="contained" color="primary">Next</Button>
+            <Button type="submit" variant="contained" color="primary" onClick={push}>Next</Button>
           </div>
         </form>
       </FormProvider>
